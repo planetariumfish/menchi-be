@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  firstname String
+  lastname  String?
+  role      Role      @default(USER)
+  phone     String?   @db.VarChar(15) // note: Never store phone # as numerical value (leading 0 lost)
+  bio       String?
+  bookmarks Pet[]
+  keptpets  Pet[]     @relation("status")
+  returned  DateTime?
+  photo     String?
+  password  String
+}
+
+model Pet {
+  id             String     @id @default(uuid())
+  name           String
+  type           AnimalType
+  breed          String
+  status         Status     @default(AVAILABLE)
+  picture        String?
+  height         Int
+  weight         Int
+  color          String
+  bio            String?
+  hypoallergenic Boolean    @default(false)
+  dietary        String[]
+  userId         String?
+  user           User?      @relation(fields: [userId], references: [id], "status")
+  bookmarks      User[]
+  added          DateTime   @default(now())
+  returned       DateTime?
+  tags           String[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AnimalType {
+  Dog
+  Cat
+  Rat
+  Bird
+  Rabbit
+  Ferret
+  GuineaPig
+}
+
+enum Status {
+  ADOPTED
+  FOSTERED
+  AVAILABLE
+}
