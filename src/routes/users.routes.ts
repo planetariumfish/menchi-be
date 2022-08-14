@@ -2,7 +2,12 @@ import express from "express";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-import { getAllUsers, addUser, getUserbyEmail } from "../models/users.prisma";
+import {
+  getAllUsers,
+  addUser,
+  getUserbyEmail,
+  getUserbyID,
+} from "../models/users.prisma";
 import passwordsMatch from "../middleware/passwordsMatch";
 import auth from "../middleware/auth";
 
@@ -15,6 +20,12 @@ router.get("/", async (req, res) => {
 
 router.get("/welcome", auth, (req, res) => {
   res.status(200).send("Welcome 🙌 ");
+});
+
+router.get("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const user = await getUserbyID(id);
+  res.status(200).send(user);
 });
 
 router.post("/register", passwordsMatch, async (req, res) => {

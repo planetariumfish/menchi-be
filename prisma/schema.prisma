@@ -58,7 +58,7 @@ enum AnimalType {
   Bird
   Rabbit
   Ferret
-  GuineaPig
+  Other
 }
 
 enum Status {
