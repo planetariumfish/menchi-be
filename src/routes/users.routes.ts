@@ -30,7 +30,7 @@ router.get("/:id", auth, async (req, res) => {
 
 router.post("/register", passwordsMatch, async (req, res) => {
   try {
-    const { firstname, lastname, email, password } = req.body;
+    const { firstname, lastname, email, password } = req.body.data;
 
     // find if user already exists
     const oldUser = await getUserbyEmail(email);
@@ -58,7 +58,7 @@ router.post("/register", passwordsMatch, async (req, res) => {
     );
 
     // return new user
-    res.status(201).json({ user, token });
+    res.status(201).json({ user: user.id, token });
   } catch (err) {
     res.status(500).send({ message: "Something went wrong.", err });
   }
@@ -76,7 +76,7 @@ router.post("/login", async (req, res) => {
         expiresIn: "2h",
       }
     );
-    res.status(200).json({ user, token });
+    res.status(200).json({ user: user.id, token });
   } else {
     res.status(400).send("Invalid credentials.");
   }

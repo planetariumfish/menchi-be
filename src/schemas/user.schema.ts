@@ -3,11 +3,12 @@ import z from "zod";
 
 export const userSchema = z.object({
   id: z.string(),
-  firstname: z.optional(z.string()),
-  lastname: z.optional(z.string()),
+  firstname: z.string(),
+  lastname: z.string().optional(),
   role: z.nativeEnum(Role),
-  phone: z.optional(z.string()),
-  bio: z.optional(z.string()),
+  phone: z.string().optional(),
+  bio: z.string().optional(),
+  photo: z.string().optional(),
   password: z.string().min(8).max(32),
 });
 

@@ -3,6 +3,14 @@ import { addPet, getPetbyID, updatePet } from "../models/pets.prisma";
 
 const router = express.Router();
 
+// TODO: finish search functionality
+router.get("/", async (req, res) => {
+  const { animalType, status, height, weight, name } = req.query;
+  console.log(req.query);
+  // call a model here
+  res.status(200).send("Got your query! Will deal with it soon...");
+});
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const pet = await getPetbyID(id);
