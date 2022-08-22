@@ -1,85 +1,38 @@
 import express from "express";
-import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
 import "dotenv/config";
-import {
-  getAllUsers,
-  addUser,
-  getUserbyEmail,
-  getUserbyID,
-} from "../models/users.prisma";
+import { getAllUsers, getUserbyID } from "../models/users.prisma";
 import passwordsMatch from "../middleware/passwordsMatch";
 import auth from "../middleware/auth";
+import isAdmin from "../middleware/isAdmin";
+import oldPwdCheck from "../middleware/oldPwdCheck";
+import {
+  changePwd,
+  editUser,
+  userLogin,
+  userSignup,
+} from "../controllers/userControllers";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
+  const { id } = req.body.user;
+  const user = await getUserbyID(id);
+  const safeUser = Object.assign({ ...user });
+  delete safeUser.password;
+  res.status(200).send(safeUser);
+});
+
+router.get("/all", auth, isAdmin, async (req, res) => {
   const users = await getAllUsers();
   res.send(users);
 });
 
-router.get("/welcome", auth, (req, res) => {
-  res.status(200).send("Welcome 🙌 ");
-});
+router.post("/register", passwordsMatch, userSignup);
 
-router.get("/:id", auth, async (req, res) => {
-  const { id } = req.params;
-  const user = await getUserbyID(id);
-  res.status(200).send(user);
-});
+router.post("/login", userLogin);
 
-router.post("/register", passwordsMatch, async (req, res) => {
-  try {
-    const { firstname, lastname, email, password } = req.body.data;
+router.put("/edit", auth, editUser);
 
-    // find if user already exists
-    const oldUser = await getUserbyEmail(email);
-    if (oldUser) {
-      return res.status(409).send("User Already Exist. Please Login!");
-    }
-
-    // encrypt password
-    const encryptedPassword = await bcryptjs.hash(password, 12);
-
-    const user = await addUser({
-      firstname,
-      lastname,
-      email: email.toLowerCase(),
-      password: encryptedPassword,
-    });
-
-    // Create token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.TOKEN_KEY as string,
-      {
-        expiresIn: "2h",
-      }
-    );
-
-    // return new user
-    res.status(201).json({ user: user.id, token });
-  } catch (err) {
-    res.status(500).send({ message: "Something went wrong.", err });
-  }
-});
-
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await getUserbyEmail(email.toLowerCase());
-  if (user && (await bcryptjs.compare(password, user.password))) {
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.TOKEN_KEY as string,
-      {
-        expiresIn: "2h",
-      }
-    );
-    res.status(200).json({ user: user.id, token });
-  } else {
-    res.status(400).send("Invalid credentials.");
-  }
-});
+router.put("/changepwd", passwordsMatch, auth, oldPwdCheck, changePwd);
 
 export default router;
