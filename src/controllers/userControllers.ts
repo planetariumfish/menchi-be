@@ -4,6 +4,7 @@ import {
   getUserbyEmail,
   getUserbyID,
   updateUser,
+  updateUserPhoto,
 } from "../models/users.prisma";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -67,13 +68,19 @@ export const changePwd = async (req: Request, res: Response) => {
   const data = Object.assign({ ...req.body });
   delete data.user;
   const user = await getUserbyID(id);
-  if (user) {
+  if (!user) {
+    res.status(404).send({ ok: false, message: "User not found" });
+    return;
+  }
+  try {
     // encrypt password
     const encryptedPassword = await bcryptjs.hash(data.password, 12);
     data.password = encryptedPassword;
-    const updatedUser = await updateUser(id, data);
+    await updateUser(id, data);
+    res.status(200).send({ ok: true, message: "Password updated!" });
+  } catch (err) {
+    res.status(500).send(err);
   }
-  res.status(200).send("Password updated!");
 };
 
 export const editUser = async (req: Request, res: Response) => {
@@ -81,8 +88,30 @@ export const editUser = async (req: Request, res: Response) => {
   const data = Object.assign({ ...req.body });
   delete data.user;
   const user = await getUserbyID(id);
-  if (user) {
-    const updatedUser = await updateUser(id, data);
+  if (!user) {
+    res.status(404).send({ ok: false, message: "User not found" });
+    return;
   }
-  res.status(200).send("Profile updated!");
+  try {
+    await updateUser(id, data);
+    res.status(200).send({ ok: true, message: "Profile updated!" });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+export const addPhoto = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  const { photo } = req.body;
+  const user = await getUserbyID(id);
+  if (!user) {
+    res.status(404).send({ ok: false, message: "User not found" });
+    return;
+  }
+  try {
+    await updateUserPhoto(id, photo);
+    res.status(200).send({ ok: true, message: "Photo uploaded!" });
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };

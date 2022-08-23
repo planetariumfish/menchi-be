@@ -20,7 +20,7 @@ app.use("/users", userRoutes);
 app.use("/pets", petRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Hello Typescript with Node.js!");
+  res.send("⚡️ Hello Typescript with Node.js! 🦾");
 });
 
 app.get("*", (req, res) => {

@@ -6,8 +6,11 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.body.user;
 
   const user = await getUserbyID(id);
-  if (user?.role === Role.ADMIN) next();
-  res.status(403).send("Not an admin.");
+  if (user?.role === Role.ADMIN) {
+    next();
+    return;
+  }
+  res.status(403).send({ ok: false, message: "Not an admin." });
 };
 
 export default isAdmin;

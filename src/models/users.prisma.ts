@@ -1,6 +1,7 @@
 import { PrismaClient, User } from "@prisma/client";
 import { NewUser } from "../types/types";
 
+// tRPC docs - utils folder - prisma file (to see how to generate one instance of the client)
 const prisma = new PrismaClient();
 
 export async function getAllUsers() {
@@ -37,6 +38,16 @@ export async function updateUser(id: string, data: User) {
       id,
     },
     data,
+  });
+  return updateUser;
+}
+
+export async function updateUserPhoto(id: string, photo: string) {
+  const updateUser = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: { photo },
   });
   return updateUser;
 }

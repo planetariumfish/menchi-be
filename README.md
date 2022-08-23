@@ -12,6 +12,7 @@ Set up using:
 - Express: v4.18.1
 - Prisma: v4.2.1
 - [Zod](https://github.com/colinhacks/zod): v3.18.0
+- Multer: v1.4.5lts.1
 
 ## Status
 
@@ -22,9 +23,9 @@ Done:
 - Basic routing for user auth
 - Prisma schemas
 - Basic models for querying the db (users and pets)
+- Upload photos to Cloudinary
 
 To do:
 
-- File uploading for users and pet photos
+- File uploading for pet photos
 - Advanced search function
-- Refactor controllers to clean up routes
