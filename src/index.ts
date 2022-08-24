@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieparser from "cookie-parser";
 import "dotenv/config";
 import userRoutes from "./routes/users.routes";
 import petRoutes from "./routes/pets.routes";
@@ -10,10 +11,12 @@ const PORT = process.env.PORT || 2501;
 const allowedOrigins = ["http://localhost:5173"];
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
+  credentials: true,
 };
 
 app.use(cors(options));
 app.use(express.json());
+app.use(cookieparser());
 
 app.use("/users", userRoutes);
 

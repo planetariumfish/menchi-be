@@ -9,6 +9,7 @@ import {
   addPhoto,
   changePwd,
   editUser,
+  logout,
   userLogin,
   userSignup,
 } from "../controllers/userControllers";
@@ -54,5 +55,7 @@ router.post(
   uploadToCloudinary,
   addPhoto
 );
+
+router.get("/logout", logout);
 
 export default router;

@@ -1,7 +1,6 @@
-import { AnimalType, Pet, PrismaClient } from "@prisma/client";
+import { AnimalType, Pet } from "@prisma/client";
 import { NewPet } from "../types/types";
-
-const prisma = new PrismaClient();
+import prisma from "./prismaClient";
 
 export async function getAllPets() {
   const allPets = await prisma.pet.findMany();

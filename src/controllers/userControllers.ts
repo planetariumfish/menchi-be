@@ -8,7 +8,6 @@ import {
 } from "../models/users.prisma";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NewUser } from "../types/types";
 
 export const userSignup = async (req: Request, res: Response) => {
   try {
@@ -39,8 +38,14 @@ export const userSignup = async (req: Request, res: Response) => {
       }
     );
 
-    // return new user
-    res.status(201).json({ token });
+    // set cookie
+    res.cookie("token", token, {
+      maxAge: 1000 * 60 * 60 * 3,
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+    res.status(201).send({ ok: true, id: user.id });
   } catch (err) {
     res.status(500).send({ message: "Something went wrong.", err });
   }
@@ -58,7 +63,14 @@ export const userLogin = async (req: Request, res: Response) => {
         expiresIn: "2h",
       }
     );
-    res.status(200).json({ token });
+    // set cookie
+    res.cookie("token", token, {
+      maxAge: 1000 * 60 * 60 * 3,
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+    res.status(200).json({ ok: true, id: user.id });
   } else {
     res.status(400).send("Invalid credentials.");
   }
@@ -115,4 +127,9 @@ export const addPhoto = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
+};
+
+export const logout = (req: Request, res: Response) => {
+  res.clearCookie("token");
+  res.status(200).send({ ok: true, message: "Goodbye!" });
 };

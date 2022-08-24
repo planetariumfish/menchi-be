@@ -1,8 +1,6 @@
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { NewUser } from "../types/types";
-
-// tRPC docs - utils folder - prisma file (to see how to generate one instance of the client)
-const prisma = new PrismaClient();
+import prisma from "./prismaClient";
 
 export async function getAllUsers() {
   const allUsers = await prisma.user.findMany();
