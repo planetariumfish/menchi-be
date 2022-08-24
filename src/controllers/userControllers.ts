@@ -8,6 +8,7 @@ import {
 } from "../models/users.prisma";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { NewUser } from "../types/types";
 
 export const userSignup = async (req: Request, res: Response) => {
   try {

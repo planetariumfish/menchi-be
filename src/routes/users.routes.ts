@@ -14,6 +14,9 @@ import {
 } from "../controllers/userControllers";
 import { upload } from "../middleware/multer";
 import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
+import validate from "../middleware/validate";
+import { loginSchema, signupSchema } from "../schemas/user.schema";
+import { SafeUser } from "../types/types";
 
 const router = express.Router();
 
@@ -27,14 +30,18 @@ router.get("/", auth, async (req, res) => {
 
 router.get("/all", auth, isAdmin, async (req, res) => {
   const users = await getAllUsers();
-  const safeUsers: string[] = [];
-  users.forEach((user) => safeUsers.push(user.id));
+  const safeUsers: SafeUser[] = [];
+  users.forEach((user) => {
+    const safeUser = Object.assign({ ...user });
+    delete safeUser.password;
+    safeUsers.push(safeUser);
+  });
   res.status(200).send(safeUsers);
 });
 
-router.post("/register", passwordsMatch, userSignup);
+router.post("/register", validate(signupSchema), passwordsMatch, userSignup);
 
-router.post("/login", userLogin);
+router.post("/login", validate(loginSchema), userLogin);
 
 router.put("/edit", auth, editUser);
 

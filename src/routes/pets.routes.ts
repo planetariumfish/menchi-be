@@ -5,7 +5,7 @@ const router = express.Router();
 
 // TODO: finish search functionality
 router.get("/", async (req, res) => {
-  const { animalType, status, height, weight, name } = req.query;
+  const { animalType, status, height, weight, name, advanced } = req.query;
   console.log(req.query);
   // call a model here
   res.status(200).send("Got your query! Will deal with it soon...");

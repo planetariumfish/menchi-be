@@ -12,7 +12,7 @@ Set up using:
 - Express: v4.18.1
 - Prisma: v4.2.1
 - [Zod](https://github.com/colinhacks/zod): v3.18.0
-- Multer: v1.4.5lts.1
+- Multer: v1.4.5-lts.1
 
 ## Status
 
