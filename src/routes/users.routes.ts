@@ -9,6 +9,7 @@ import {
   addPhoto,
   changePwd,
   editUser,
+  getUserInfo,
   logout,
   userLogin,
   userSignup,
@@ -18,27 +19,11 @@ import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
 import validate from "../middleware/validate";
 import { loginSchema, signupSchema } from "../schemas/user.schema";
 import { SafeUser } from "../types/types";
+import { adminEditUser, sendAllUsers } from "../controllers/adminControllers";
 
 const router = express.Router();
 
-router.get("/", auth, async (req, res) => {
-  const { id } = req.body.user;
-  const user = await getUserbyID(id);
-  const safeUser = Object.assign({ ...user });
-  delete safeUser.password;
-  res.status(200).send(safeUser);
-});
-
-router.get("/all", auth, isAdmin, async (req, res) => {
-  const users = await getAllUsers();
-  const safeUsers: SafeUser[] = [];
-  users.forEach((user) => {
-    const safeUser = Object.assign({ ...user });
-    delete safeUser.password;
-    safeUsers.push(safeUser);
-  });
-  res.status(200).send(safeUsers);
-});
+router.get("/", auth, getUserInfo);
 
 router.post("/register", validate(signupSchema), passwordsMatch, userSignup);
 
@@ -57,5 +42,11 @@ router.post(
 );
 
 router.get("/logout", logout);
+
+// admin routes
+
+router.get("/all", auth, isAdmin, sendAllUsers);
+
+router.put("/:id", auth, isAdmin, adminEditUser);
 
 export default router;

@@ -113,6 +113,7 @@ export const editUser = async (req: Request, res: Response) => {
   }
 };
 
+// could probably be folded into editUser
 export const addPhoto = async (req: Request, res: Response) => {
   const { id } = req.body;
   const { photo } = req.body;
@@ -127,6 +128,14 @@ export const addPhoto = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
+};
+
+export const getUserInfo = async (req: Request, res: Response) => {
+  const { id } = req.body.user;
+  const user = await getUserbyID(id);
+  const safeUser = Object.assign({ ...user });
+  delete safeUser.password;
+  res.status(200).send(safeUser);
 };
 
 export const logout = (req: Request, res: Response) => {
