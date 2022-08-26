@@ -52,11 +52,9 @@ export const uploadToCloudinary = async (
       const result = await uploadImage(req.file.path);
       if (!result) throw new Error("Something went wrong with the upload.");
       else {
-        let imageUrl = "";
         if (req.file.fieldname === "avatar")
-          imageUrl = createUrl(result.public_id);
-        else imageUrl = result.secure_url;
-        req.body.photo = imageUrl;
+          req.body.photo = createUrl(result.public_id);
+        else req.body.photo = result.secure_url;
         fs.unlinkSync(req.file.path);
         next();
       }

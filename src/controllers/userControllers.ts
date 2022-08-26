@@ -115,8 +115,7 @@ export const editUser = async (req: Request, res: Response) => {
 
 // could probably be folded into editUser
 export const addPhoto = async (req: Request, res: Response) => {
-  const { id } = req.body;
-  const { photo } = req.body;
+  const { id, photo } = req.body;
   const user = await getUserbyID(id);
   if (!user) {
     res.status(404).send({ ok: false, message: "User not found" });

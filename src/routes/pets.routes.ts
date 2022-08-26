@@ -1,6 +1,13 @@
 import express from "express";
-import { addPet, getPetbyID, updatePet } from "../models/pets.prisma";
+import {
+  addPet,
+  getPetbyID,
+  updatePet,
+  updatePetPhoto,
+} from "../models/pets.prisma";
 import auth from "../middleware/auth";
+import { upload } from "../middleware/multer";
+import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
 
 const router = express.Router();
 
@@ -21,8 +28,29 @@ router.get("/:id", async (req, res) => {
 router.post("/add", async (req, res) => {
   const newPet = req.body;
   const pet = await addPet(newPet);
-  res.status(200).send(pet);
+  res.status(200).send({ ok: true, message: "Pet added.", id: pet.id });
 });
+
+router.post(
+  "/upload",
+  upload.single("petphoto"),
+  uploadToCloudinary,
+  async (req, res) => {
+    const { id, photo } = req.body;
+    const pet = await getPetbyID(id);
+    if (!pet) {
+      res.status(404).send({ ok: false, message: "Pet not found" });
+      return;
+    }
+    try {
+      const updatedPet = await updatePetPhoto(id, photo);
+      if (updatedPet)
+        res.status(200).send({ ok: true, message: "Photo uploaded!" });
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  }
+);
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;

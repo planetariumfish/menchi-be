@@ -18,7 +18,6 @@ import { upload } from "../middleware/multer";
 import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
 import validate from "../middleware/validate";
 import { loginSchema, signupSchema } from "../schemas/user.schema";
-import { SafeUser } from "../types/types";
 import { adminEditUser, sendAllUsers } from "../controllers/adminControllers";
 
 const router = express.Router();

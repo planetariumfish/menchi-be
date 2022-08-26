@@ -30,12 +30,24 @@ export async function getPetsbyType(type: AnimalType) {
   return pets;
 }
 
+// Why does this throw an error?
+
 export async function updatePet(id: string, data: Pet) {
-  const updatePet = await prisma.pet.update({
+  // const updatePet = await prisma.pet.update({
+  //   where: {
+  //     id,
+  //   },
+  //   data,
+  // });
+  // return updatePet;
+}
+
+export async function updatePetPhoto(id: string, picture: string) {
+  const updatedPet = await prisma.pet.update({
     where: {
       id,
     },
-    data,
+    data: { picture },
   });
-  return updatePet;
+  return updatedPet;
 }
