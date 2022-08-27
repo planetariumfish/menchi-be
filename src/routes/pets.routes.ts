@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addPet,
+  getAllPets,
   getPetbyID,
   updatePet,
   updatePetPhoto,
@@ -17,6 +18,11 @@ router.get("/", async (req, res) => {
   console.log(req.query);
   // call a model here
   res.status(200).send("Got your query! Will deal with it soon...");
+});
+
+router.get("/all", async (req, res) => {
+  const allPets = await getAllPets();
+  res.status(200).send(allPets);
 });
 
 router.get("/:id", async (req, res) => {
