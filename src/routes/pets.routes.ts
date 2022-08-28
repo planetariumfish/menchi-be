@@ -3,12 +3,21 @@ import {
   addPet,
   getAllPets,
   getPetbyID,
+  getPetsbyType,
   updatePet,
   updatePetPhoto,
 } from "../models/pets.prisma";
 import auth from "../middleware/auth";
 import { upload } from "../middleware/multer";
 import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
+import {
+  addBookmark,
+  deleteBookmark,
+  getPetBookmarks,
+  getUserBookmarks,
+} from "../models/bookmarks.prisma";
+import { writeStatusChange } from "../models/statuschange.prisma";
+import { AnimalType, Pet } from "@prisma/client";
 
 const router = express.Router();
 
@@ -16,8 +25,18 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   const { animalType, status, height, weight, name, advanced } = req.query;
   console.log(req.query);
-  // call a model here
-  res.status(200).send("Got your query! Will deal with it soon...");
+  try {
+    let pets: Pet[] = [];
+    if (advanced === "false") {
+      pets = animalType
+        ? await getPetsbyType(animalType as AnimalType)
+        : await getAllPets();
+    }
+    // advanced search goes here
+    res.status(200).send({ ok: true, pets });
+  } catch (err) {
+    res.status(500).send({ ok: false, message: "Something went wrong." });
+  }
 });
 
 router.get("/all", async (req, res) => {
@@ -65,19 +84,49 @@ router.put("/:id", async (req, res) => {
   res.status(200).send(pet);
 });
 
+// adopt/foster pet
+router.post("/:id/adopt", auth, async (req, res) => {
+  const { id } = req.params;
+  const { id: userId } = req.body.user;
+  const { newStatus } = req.body;
+  try {
+    const newStatusResult = await writeStatusChange(userId, id, newStatus);
+    res.status(200).send({ ok: true, message: `Pet is now ${newStatus}` });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // like and unlike pet
 router
   .route("/:id/save")
-  .post(async (req, res) => {
+  .post(auth, async (req, res) => {
     const { id } = req.params;
-    // get user ID from cookies
-    // add petid, userid to bookmarks table
+    const { id: userId } = req.body.user;
+    const bookmark = await addBookmark(userId, id);
+    res.status(200).send({ ok: true, message: "Pet saved to favorites." });
   })
-  .delete(async (req, res) => {
+  .delete(auth, async (req, res) => {
     const { id } = req.params;
-    // get user ID from cookies
-    // delete composite key in bookmarks table
+    const { id: userId } = req.body.user;
+    const bookmark = await deleteBookmark(userId, id);
+    res.status(200).send({ ok: true, message: "Pet removed from favorites." });
   });
+
+router.get("/:id/likes", async (req, res) => {
+  const { id } = req.params;
+  const bookmarks = await getPetBookmarks(id);
+  const likes = bookmarks ? bookmarks.length : 0;
+  res.status(200).send({ ok: true, likes });
+});
+
+router.get("/user/:id/saved", async (req, res) => {
+  const { id } = req.params;
+  const bookmarks = await getUserBookmarks(id);
+  const petIds: string[] = [];
+  if (bookmarks) bookmarks.forEach((e) => petIds.push(e.petId));
+  res.send(petIds);
+});
 
 router.post("/:id/:statuschange", auth, async (req, res) => {
   const { id, statuschange } = req.params;

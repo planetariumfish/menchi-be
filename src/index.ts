@@ -1,4 +1,9 @@
-import express from "express";
+import express, {
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import cors from "cors";
 import cookieparser from "cookie-parser";
 import "dotenv/config";
@@ -17,6 +22,11 @@ const options: cors.CorsOptions = {
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieparser());
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  res.status(err.statusCode).send({ ok: false, message: err.message });
+};
+app.use(errorHandler);
 
 app.use("/users", userRoutes);
 
