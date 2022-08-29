@@ -19,7 +19,8 @@ import {
   getUserBookmarks,
 } from "../models/bookmarks.prisma";
 import { writeStatusChange } from "../models/statuschange.prisma";
-import { AnimalType, Pet } from "@prisma/client";
+import { AnimalType, Pet, Status } from "@prisma/client";
+import { userReturningAdoptedPet } from "../models/users.prisma";
 
 const router = express.Router();
 
@@ -96,13 +97,6 @@ router.post(
   }
 );
 
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const newData = req.body;
-  const pet = await updatePet(id, newData);
-  res.status(200).send(pet);
-});
-
 // adopt/foster pet
 router.post("/:id/adopt", auth, async (req, res) => {
   const { id } = req.params;
@@ -117,6 +111,23 @@ router.post("/:id/adopt", auth, async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const newData = req.body;
+  const pet = await updatePet(id, newData);
+  res.status(200).send(pet);
+});
+
+router.put("/:id/return", auth, async (req, res) => {
+  const { id: userId } = req.body.user;
+  const { id } = req.params;
+  const pet = await getPetbyID(id);
+  if (pet && pet.status === "ADOPTED") await userReturningAdoptedPet(userId);
+  const updatedPet = await updatePetStatus(id, Status.AVAILABLE, null);
+  const newHist = await writeStatusChange(userId, id, Status.AVAILABLE);
+  res.status(200).send({ ok: true, message: "Pet has been returned." });
 });
 
 // like and unlike pet

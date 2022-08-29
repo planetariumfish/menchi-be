@@ -52,7 +52,7 @@ export async function updatePet(id: string, data: Pet) {
 export async function updatePetStatus(
   id: string,
   status: Status,
-  userId: string
+  userId: string | null
 ) {
   const updatedPet = await prisma.pet.update({
     where: {

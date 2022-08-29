@@ -49,3 +49,13 @@ export async function updateUserPhoto(id: string, photo: string) {
   });
   return updateUser;
 }
+
+export async function userReturningAdoptedPet(id: string) {
+  const updateUser = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: { returned: new Date() },
+  });
+  return updateUser;
+}
