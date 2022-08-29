@@ -1,4 +1,4 @@
-import { AnimalType, Pet } from "@prisma/client";
+import { AnimalType, Pet, Status } from "@prisma/client";
 import { NewPet } from "../types/types";
 import prisma from "./prismaClient";
 
@@ -33,13 +33,23 @@ export async function getPetsbyType(type: AnimalType) {
 // Why does this throw an error?
 
 export async function updatePet(id: string, data: Pet) {
-  // const updatePet = await prisma.pet.update({
-  //   where: {
-  //     id,
-  //   },
-  //   data,
-  // });
-  // return updatePet;
+  const updatePet = await prisma.pet.update({
+    where: {
+      id,
+    },
+    data,
+  });
+  return updatePet;
+}
+
+export async function updatePetStatus(id: string, status: Status) {
+  const updatedPet = await prisma.pet.update({
+    where: {
+      id,
+    },
+    data: { status },
+  });
+  return updatedPet;
 }
 
 export async function updatePetPhoto(id: string, picture: string) {

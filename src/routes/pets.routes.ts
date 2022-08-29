@@ -6,6 +6,7 @@ import {
   getPetsbyType,
   updatePet,
   updatePetPhoto,
+  updatePetStatus,
 } from "../models/pets.prisma";
 import auth from "../middleware/auth";
 import { upload } from "../middleware/multer";
@@ -24,7 +25,7 @@ const router = express.Router();
 // TODO: finish search functionality
 router.get("/", async (req, res) => {
   const { animalType, status, height, weight, name, advanced } = req.query;
-  console.log(req.query);
+  // console.log(req.query);
   try {
     let pets: Pet[] = [];
     if (advanced === "false") {
@@ -88,10 +89,14 @@ router.put("/:id", async (req, res) => {
 router.post("/:id/adopt", auth, async (req, res) => {
   const { id } = req.params;
   const { id: userId } = req.body.user;
-  const { newStatus } = req.body;
+  const { status } = req.body;
+  console.log(req.body);
   try {
-    const newStatusResult = await writeStatusChange(userId, id, newStatus);
-    res.status(200).send({ ok: true, message: `Pet is now ${newStatus}` });
+    const newStatusResult = await writeStatusChange(userId, id, status);
+    const updatedPet = await updatePetStatus(id, status);
+    res
+      .status(200)
+      .send({ ok: true, message: `Pet is now ${status.toLowerCase()}` });
   } catch (err) {
     console.log(err);
   }

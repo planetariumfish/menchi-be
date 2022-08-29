@@ -16,5 +16,11 @@ export const writeStatusChange = async (
   petId: string,
   newStatus: Status
 ) => {
-  // write new record to database with this
+  try {
+    const status = await prisma.statusChange.create({
+      data: { newStatus, petId, userId },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
