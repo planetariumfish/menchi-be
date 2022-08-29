@@ -30,7 +30,14 @@ export async function getPetsbyType(type: AnimalType) {
   return pets;
 }
 
-// Why does this throw an error?
+export async function getUserPets(id: string) {
+  const pets = await prisma.pet.findMany({
+    where: {
+      userId: id,
+    },
+  });
+  return pets;
+}
 
 export async function updatePet(id: string, data: Pet) {
   const updatePet = await prisma.pet.update({
@@ -42,12 +49,16 @@ export async function updatePet(id: string, data: Pet) {
   return updatePet;
 }
 
-export async function updatePetStatus(id: string, status: Status) {
+export async function updatePetStatus(
+  id: string,
+  status: Status,
+  userId: string
+) {
   const updatedPet = await prisma.pet.update({
     where: {
       id,
     },
-    data: { status },
+    data: { status, userId: status === Status.AVAILABLE ? null : userId },
   });
   return updatedPet;
 }

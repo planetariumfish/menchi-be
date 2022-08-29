@@ -7,6 +7,7 @@ import {
   updatePet,
   updatePetPhoto,
   updatePetStatus,
+  getUserPets,
 } from "../models/pets.prisma";
 import auth from "../middleware/auth";
 import { upload } from "../middleware/multer";
@@ -40,6 +41,13 @@ router.get("/", async (req, res) => {
   }
 });
 
+// get a user's adopted/fostered pets
+router.get("/user/:id", auth, async (req, res) => {
+  const { id } = req.params;
+  const pets = await getUserPets(id);
+  res.status(200).send({ ok: true, pets });
+});
+
 router.get("/all", async (req, res) => {
   const allPets = await getAllPets();
   res.status(200).send(allPets);
@@ -49,6 +57,16 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const pet = await getPetbyID(id);
   res.status(200).send(pet);
+});
+
+router.post("/", async (req, res) => {
+  const petIds = req.body;
+  const results = [];
+  for (const id of petIds) {
+    const pet = await getPetbyID(id);
+    results.push(pet);
+  }
+  res.status(200).send(results);
 });
 
 router.post("/add", async (req, res) => {
@@ -90,10 +108,9 @@ router.post("/:id/adopt", auth, async (req, res) => {
   const { id } = req.params;
   const { id: userId } = req.body.user;
   const { status } = req.body;
-  console.log(req.body);
   try {
     const newStatusResult = await writeStatusChange(userId, id, status);
-    const updatedPet = await updatePetStatus(id, status);
+    const updatedPet = await updatePetStatus(id, status, userId);
     res
       .status(200)
       .send({ ok: true, message: `Pet is now ${status.toLowerCase()}` });
@@ -131,17 +148,6 @@ router.get("/user/:id/saved", async (req, res) => {
   const petIds: string[] = [];
   if (bookmarks) bookmarks.forEach((e) => petIds.push(e.petId));
   res.send(petIds);
-});
-
-router.post("/:id/:statuschange", auth, async (req, res) => {
-  const { id, statuschange } = req.params;
-  // add record to statuschange table
-});
-
-// get a user's adopted/fostered pets
-router.get("/user/:id", auth, async (req, res) => {
-  const { id } = req.params;
-  // look in statuschange table by userid and get the most recent fostered and adopted records
 });
 
 export default router;
