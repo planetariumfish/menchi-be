@@ -102,6 +102,7 @@ export async function getPetsBySearch(queryParams: Record<string, any>) {
       gte: +queryParams.weight[0],
       lte: +queryParams.weight[1],
     };
+  if (queryParams.status) searchObj.status = queryParams.status;
   if (fuzzyTerms.length > 0)
     searchObj.OR = [
       { tags: { hasSome: fuzzyTerms } },
