@@ -18,7 +18,11 @@ import { upload } from "../middleware/multer";
 import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
 import validate from "../middleware/validate";
 import { loginSchema, signupSchema } from "../schemas/user.schema";
-import { adminEditUser, sendAllUsers } from "../controllers/adminControllers";
+import {
+  adminEditUser,
+  adminGetUser,
+  sendAllUsers,
+} from "../controllers/adminControllers";
 
 const router = express.Router();
 
@@ -46,6 +50,9 @@ router.get("/logout", logout);
 
 router.get("/all", auth, isAdmin, sendAllUsers);
 
-router.put("/:id", auth, isAdmin, adminEditUser);
+router
+  .route("/:id")
+  .put(auth, isAdmin, adminEditUser)
+  .get(auth, isAdmin, adminGetUser);
 
 export default router;

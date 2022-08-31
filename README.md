@@ -10,7 +10,7 @@ Set up using:
 - Typescript: v4.7.4
 - Node: v16.16.0
 - Express: v4.18.1
-- Prisma: v4.2.1
+- Prisma: v4.3.0
 - [Zod](https://github.com/colinhacks/zod): v3.18.0
 - Multer: v1.4.5-lts.1
 
@@ -24,8 +24,8 @@ Done:
 - Prisma schemas
 - Basic models for querying the db (users and pets)
 - Upload photos to Cloudinary
+- File uploading for pet photos
 
 To do:
 
-- File uploading for pet photos
 - Advanced search function

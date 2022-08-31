@@ -22,6 +22,21 @@ export const adminEditUser = async (req: Request, res: Response) => {
   }
 };
 
+export const adminGetUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data = Object.assign({ ...req.body });
+  delete data.user;
+  console.log(data);
+  const user = await getUserbyID(id);
+  if (!user) {
+    res.status(404).send({ ok: false, message: "User not found" });
+    return;
+  }
+  const safeUser = Object.assign({ ...user });
+  delete safeUser.password;
+  res.status(200).send({ ok: true, user: safeUser });
+};
+
 export const sendAllUsers = async (req: Request, res: Response) => {
   const users = await getAllUsers();
   const safeUsers: SafeUser[] = [];

@@ -3,7 +3,6 @@ import {
   addPet,
   getAllPets,
   getPetbyID,
-  getPetsbyType,
   updatePet,
   updatePetPhoto,
   updatePetStatus,
@@ -21,26 +20,13 @@ import {
 import { writeStatusChange } from "../models/statuschange.prisma";
 import { AnimalType, Pet, Status } from "@prisma/client";
 import { userReturningAdoptedPet } from "../models/users.prisma";
+import searchFilter from "../middleware/searchFilter";
+import { searchForPets } from "../controllers/petControllers";
 
 const router = express.Router();
 
 // TODO: finish search functionality
-router.get("/", async (req, res) => {
-  const { animalType, status, height, weight, name, advanced } = req.query;
-  // console.log(req.query);
-  try {
-    let pets: Pet[] = [];
-    if (advanced === "false") {
-      pets = animalType
-        ? await getPetsbyType(animalType as AnimalType)
-        : await getAllPets();
-    }
-    // advanced search goes here
-    res.status(200).send({ ok: true, pets });
-  } catch (err) {
-    res.status(500).send({ ok: false, message: "Something went wrong." });
-  }
-});
+router.get("/", searchFilter, searchForPets);
 
 // get a user's adopted/fostered pets
 router.get("/user/:id", auth, async (req, res) => {

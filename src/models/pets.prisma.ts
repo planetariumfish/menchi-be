@@ -21,7 +21,7 @@ export async function getPetbyID(id: string) {
   return user;
 }
 
-export async function getPetsbyType(type: AnimalType) {
+export async function getPetsByType(type: AnimalType) {
   const pets = await prisma.pet.findMany({
     where: {
       type,
@@ -71,4 +71,41 @@ export async function updatePetPhoto(id: string, picture: string) {
     data: { picture },
   });
   return updatedPet;
+}
+
+// using "any" here because, well, yeah
+export async function getPetsBySearch(queryParams: Record<string, any>) {
+  // build search object
+  let fuzzyTerms = queryParams.query ? queryParams.query.split(",") : [];
+  fuzzyTerms = fuzzyTerms.map((e: string) => (e = e.trim()));
+  const searchList = fuzzyTerms
+    .map((e: string) => (e = `"${e.split(" ").join(" & ")}"`))
+    .join(" | ");
+
+  const searchObj: Record<string, any> = {};
+  if (queryParams.animalType) searchObj.type = queryParams.animalType;
+  if (queryParams.height)
+    searchObj.height = {
+      gte: +queryParams.height[0],
+      lte: +queryParams.height[1],
+    };
+  if (queryParams.weight)
+    searchObj.weight = {
+      gte: +queryParams.weight[0],
+      lte: +queryParams.weight[1],
+    };
+  if (fuzzyTerms.length > 0)
+    searchObj.OR = [
+      { tags: { hasSome: fuzzyTerms } },
+      { dietary: { hasSome: fuzzyTerms } },
+      { name: { search: searchList, mode: "insensitive" } },
+      { color: { search: searchList, mode: "insensitive" } },
+      { breed: { search: searchList, mode: "insensitive" } },
+    ];
+
+  // run the search
+  const pets = await prisma.pet.findMany({
+    where: searchObj,
+  });
+  return pets;
 }
