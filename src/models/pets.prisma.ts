@@ -8,7 +8,15 @@ export async function getAllPets() {
 }
 
 export async function addPet(pet: NewPet) {
-  const newPet = await prisma.pet.create({ data: pet });
+  // Postgres is case sensitive and Prisma doesn't have mode: 'insensitive' for "hasSome", so lowercasing tags and dietary array values
+  const lowerCasePet: NewPet = pet;
+  if (lowerCasePet.dietary)
+    lowerCasePet.dietary = lowerCasePet.dietary.map((e: string) =>
+      e.toLowerCase()
+    );
+  if (lowerCasePet.tags)
+    lowerCasePet.tags = lowerCasePet.tags.map((e: string) => e.toLowerCase());
+  const newPet = await prisma.pet.create({ data: lowerCasePet });
   return newPet;
 }
 
@@ -77,7 +85,7 @@ export async function updatePetPhoto(id: string, picture: string) {
 export async function getPetsBySearch(queryParams: Record<string, any>) {
   // build search object
   let fuzzyTerms = queryParams.query ? queryParams.query.split(",") : [];
-  fuzzyTerms = fuzzyTerms.map((e: string) => (e = e.trim()));
+  fuzzyTerms = fuzzyTerms.map((e: string) => (e = e.toLowerCase().trim()));
   const searchList = fuzzyTerms
     .map((e: string) => (e = `"${e.split(" ").join(" & ")}"`))
     .join(" | ");

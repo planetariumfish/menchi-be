@@ -33,7 +33,7 @@ model Pet {
   status         Status     @default(AVAILABLE)
   picture        String?
   height         Int
-  weight         Int
+  weight         Float
   color          String
   bio            String?
   hypoallergenic Boolean    @default(false)

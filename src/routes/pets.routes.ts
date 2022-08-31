@@ -21,19 +21,19 @@ import { writeStatusChange } from "../models/statuschange.prisma";
 import { AnimalType, Pet, Status } from "@prisma/client";
 import { userReturningAdoptedPet } from "../models/users.prisma";
 import searchFilter from "../middleware/searchFilter";
-import { searchForPets } from "../controllers/petControllers";
+import {
+  addPetPhoto,
+  getSomePets,
+  getUserOwnedPets,
+  searchForPets,
+} from "../controllers/petControllers";
 
 const router = express.Router();
 
-// TODO: finish search functionality
 router.get("/", searchFilter, searchForPets);
 
 // get a user's adopted/fostered pets
-router.get("/user/:id", auth, async (req, res) => {
-  const { id } = req.params;
-  const pets = await getUserPets(id);
-  res.status(200).send({ ok: true, pets });
-});
+router.get("/user/:id", auth, getUserOwnedPets);
 
 router.get("/all", async (req, res) => {
   const allPets = await getAllPets();
@@ -46,15 +46,8 @@ router.get("/:id", async (req, res) => {
   res.status(200).send(pet);
 });
 
-router.post("/", async (req, res) => {
-  const petIds = req.body;
-  const results = [];
-  for (const id of petIds) {
-    const pet = await getPetbyID(id);
-    results.push(pet);
-  }
-  res.status(200).send(results);
-});
+// get some pets by id array
+router.post("/", getSomePets);
 
 router.post("/add", async (req, res) => {
   const newPet = req.body;
@@ -66,21 +59,7 @@ router.post(
   "/upload",
   upload.single("petphoto"),
   uploadToCloudinary,
-  async (req, res) => {
-    const { id, photo } = req.body;
-    const pet = await getPetbyID(id);
-    if (!pet) {
-      res.status(404).send({ ok: false, message: "Pet not found" });
-      return;
-    }
-    try {
-      const updatedPet = await updatePetPhoto(id, photo);
-      if (updatedPet)
-        res.status(200).send({ ok: true, message: "Photo uploaded!" });
-    } catch (err) {
-      res.status(500).send(err);
-    }
-  }
+  addPetPhoto
 );
 
 // adopt/foster pet
@@ -99,12 +78,17 @@ router.post("/:id/adopt", auth, async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const newData = req.body;
-  const pet = await updatePet(id, newData);
-  res.status(200).send(pet);
-});
+router.put(
+  "/:id",
+  upload.single("petphoto"),
+  uploadToCloudinary,
+  async (req, res) => {
+    const { id } = req.params;
+    const newData = req.body;
+    const pet = await updatePet(id, newData);
+    res.status(200).send(pet);
+  }
+);
 
 router.put("/:id/return", auth, async (req, res) => {
   const { id: userId } = req.body.user;
