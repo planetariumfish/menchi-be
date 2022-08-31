@@ -22,6 +22,7 @@ const options: cors.CorsOptions = {
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieparser());
+app.use(express.static("dist"));
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(err.statusCode).send({ ok: false, message: err.message });

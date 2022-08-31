@@ -7,12 +7,12 @@ Back-end part of the Full-Stack project for [ITC](https://github.com/israeltechc
 
 Set up using:
 
-- Typescript: v4.7.4
-- Node: v16.16.0
-- Express: v4.18.1
-- Prisma: v4.3.0
+- [Typescript](https://www.typescriptlang.org): v4.7.4
+- [Node](https://nodejs.org/en/): v16.16.0
+- [Express](https://expressjs.com): v4.18.1
+- [Prisma](https://www.prisma.io): v4.3.0
 - [Zod](https://github.com/colinhacks/zod): v3.18.0
-- Multer: v1.4.5-lts.1
+- [Multer](https://github.com/expressjs/multer#readme): v1.4.5-lts.1
 
 ## Status
 
@@ -25,7 +25,8 @@ Done:
 - Basic models for querying the db (users and pets)
 - Upload photos to Cloudinary
 - File uploading for pet photos
+- Advanced "fuzzy search"
 
 To do:
 
-- Advanced search function
+- Better error handling (with middleware)

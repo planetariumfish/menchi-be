@@ -1,32 +1,26 @@
 import express from "express";
-import {
-  addPet,
-  getAllPets,
-  getPetbyID,
-  updatePet,
-  updatePetPhoto,
-  updatePetStatus,
-  getUserPets,
-} from "../models/pets.prisma";
+import { getAllPets, getPetbyID } from "../models/pets.prisma";
 import auth from "../middleware/auth";
 import { upload } from "../middleware/multer";
 import { uploadToCloudinary } from "../middleware/uploadToCloudinary";
-import {
-  addBookmark,
-  deleteBookmark,
-  getPetBookmarks,
-  getUserBookmarks,
-} from "../models/bookmarks.prisma";
-import { writeStatusChange } from "../models/statuschange.prisma";
-import { AnimalType, Pet, Status } from "@prisma/client";
-import { userReturningAdoptedPet } from "../models/users.prisma";
 import searchFilter from "../middleware/searchFilter";
 import {
+  addNewPet,
   addPetPhoto,
+  adoptOrFosterPet,
+  getLikedPetIds,
+  getLikes,
   getSomePets,
   getUserOwnedPets,
+  likeAPet,
+  returnAPet,
   searchForPets,
+  unlikeAPet,
+  updatePetInfo,
 } from "../controllers/petControllers";
+import isAdmin from "../middleware/isAdmin";
+import validate from "../middleware/validate";
+import { newPetSchema } from "../schemas/pet.schema";
 
 const router = express.Router();
 
@@ -49,11 +43,7 @@ router.get("/:id", async (req, res) => {
 // get some pets by id array
 router.post("/", getSomePets);
 
-router.post("/add", async (req, res) => {
-  const newPet = req.body;
-  const pet = await addPet(newPet);
-  res.status(200).send({ ok: true, message: "Pet added.", id: pet.id });
-});
+router.post("/add", validate(newPetSchema), auth, isAdmin, addNewPet);
 
 router.post(
   "/upload",
@@ -62,73 +52,19 @@ router.post(
   addPetPhoto
 );
 
+router.put("/:id", auth, isAdmin, updatePetInfo);
+
 // adopt/foster pet
-router.post("/:id/adopt", auth, async (req, res) => {
-  const { id } = req.params;
-  const { id: userId } = req.body.user;
-  const { status } = req.body;
-  try {
-    const newStatusResult = await writeStatusChange(userId, id, status);
-    const updatedPet = await updatePetStatus(id, status, userId);
-    res
-      .status(200)
-      .send({ ok: true, message: `Pet is now ${status.toLowerCase()}` });
-  } catch (err) {
-    console.log(err);
-  }
-});
+router.post("/:id/adopt", auth, adoptOrFosterPet);
 
-router.put(
-  "/:id",
-  upload.single("petphoto"),
-  uploadToCloudinary,
-  async (req, res) => {
-    const { id } = req.params;
-    const newData = req.body;
-    const pet = await updatePet(id, newData);
-    res.status(200).send(pet);
-  }
-);
-
-router.put("/:id/return", auth, async (req, res) => {
-  const { id: userId } = req.body.user;
-  const { id } = req.params;
-  const pet = await getPetbyID(id);
-  if (pet && pet.status === "ADOPTED") await userReturningAdoptedPet(userId);
-  const updatedPet = await updatePetStatus(id, Status.AVAILABLE, null);
-  const newHist = await writeStatusChange(userId, id, Status.AVAILABLE);
-  res.status(200).send({ ok: true, message: "Pet has been returned." });
-});
+router.put("/:id/return", auth, returnAPet);
 
 // like and unlike pet
-router
-  .route("/:id/save")
-  .post(auth, async (req, res) => {
-    const { id } = req.params;
-    const { id: userId } = req.body.user;
-    const bookmark = await addBookmark(userId, id);
-    res.status(200).send({ ok: true, message: "Pet saved to favorites." });
-  })
-  .delete(auth, async (req, res) => {
-    const { id } = req.params;
-    const { id: userId } = req.body.user;
-    const bookmark = await deleteBookmark(userId, id);
-    res.status(200).send({ ok: true, message: "Pet removed from favorites." });
-  });
+router.route("/:id/save").post(auth, likeAPet).delete(auth, unlikeAPet);
 
-router.get("/:id/likes", async (req, res) => {
-  const { id } = req.params;
-  const bookmarks = await getPetBookmarks(id);
-  const likes = bookmarks ? bookmarks.length : 0;
-  res.status(200).send({ ok: true, likes });
-});
+// returns the number of "likes" on a pet
+router.get("/:id/likes", getLikes);
 
-router.get("/user/:id/saved", async (req, res) => {
-  const { id } = req.params;
-  const bookmarks = await getUserBookmarks(id);
-  const petIds: string[] = [];
-  if (bookmarks) bookmarks.forEach((e) => petIds.push(e.petId));
-  res.send(petIds);
-});
+router.get("/user/:id/saved", getLikedPetIds);
 
 export default router;
