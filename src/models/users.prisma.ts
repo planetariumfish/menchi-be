@@ -3,59 +3,87 @@ import { NewUser } from "../types/types";
 import prisma from "./prismaClient";
 
 export async function getAllUsers() {
-  const allUsers = await prisma.user.findMany();
-  return allUsers;
+  try {
+    const allUsers = await prisma.user.findMany();
+    return allUsers;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function addUser(user: NewUser) {
-  const newUser = await prisma.user.create({ data: user });
-  return newUser;
+  try {
+    const newUser = await prisma.user.create({ data: user });
+    return newUser;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function getUserbyEmail(email: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email.toLowerCase(),
-    },
-  });
-  return user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email.toLowerCase(),
+      },
+    });
+    return user;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function getUserbyID(id: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
-  return user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return user;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function updateUser(id: string, data: User) {
-  const updateUser = await prisma.user.update({
-    where: {
-      id,
-    },
-    data,
-  });
-  return updateUser;
+  try {
+    const updateUser = await prisma.user.update({
+      where: {
+        id,
+      },
+      data,
+    });
+    return updateUser;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function updateUserPhoto(id: string, photo: string) {
-  const updateUser = await prisma.user.update({
-    where: {
-      id,
-    },
-    data: { photo },
-  });
-  return updateUser;
+  try {
+    const updateUser = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: { photo },
+    });
+    return updateUser;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function userReturningAdoptedPet(id: string) {
-  const updateUser = await prisma.user.update({
-    where: {
-      id,
-    },
-    data: { returned: new Date() },
-  });
-  return updateUser;
+  try {
+    const updateUser = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: { returned: new Date() },
+    });
+    return updateUser;
+  } catch (err) {
+    return { error: err };
+  }
 }

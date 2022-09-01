@@ -10,7 +10,7 @@ export const getUserBookmarks = async (userId: string) => {
     });
     return bookmarks;
   } catch (err) {
-    console.log(err);
+    return { error: err };
   }
 };
 
@@ -23,7 +23,7 @@ export const getPetBookmarks = async (petId: string) => {
     });
     return bookmarks;
   } catch (err) {
-    console.log(err);
+    return { error: err };
   }
 };
 
@@ -32,7 +32,7 @@ export const addBookmark = async (userId: string, petId: string) => {
     const bookmark = await prisma.bookmarks.create({ data: { userId, petId } });
     return bookmark;
   } catch (err) {
-    console.log(err);
+    return { error: err };
   }
 };
 
@@ -43,6 +43,6 @@ export const deleteBookmark = async (userId: string, petId: string) => {
     });
     return bookmark;
   } catch (err) {
-    console.log(err);
+    return { error: err };
   }
 };

@@ -6,6 +6,7 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.body.user;
 
   const user = await getUserbyID(id);
+  if (user && "error" in user) throw new Error(user.error as string);
   if (user?.role === Role.ADMIN) {
     next();
     return;

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   addUser,
   getUserbyEmail,
@@ -9,7 +9,11 @@ import {
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-export const userSignup = async (req: Request, res: Response) => {
+export const userSignup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { firstname, lastname, email, password } = req.body;
 
@@ -28,7 +32,7 @@ export const userSignup = async (req: Request, res: Response) => {
       email: email.toLowerCase(),
       password: encryptedPassword,
     });
-
+    if ("error" in user) throw new Error(user.error as string);
     // Create token
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -46,37 +50,52 @@ export const userSignup = async (req: Request, res: Response) => {
       secure: true,
     });
     res.status(201).send({ ok: true, id: user.id });
-  } catch (err) {
-    res.status(500).send({ message: "Something went wrong.", err });
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
-export const userLogin = async (req: Request, res: Response) => {
+export const userLogin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
 
-  const user = await getUserbyEmail(email);
-  if (user && (await bcryptjs.compare(password, user.password))) {
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.TOKEN_KEY as string,
-      {
-        expiresIn: "2h",
-      }
-    );
-    // set cookie
-    res.cookie("token", token, {
-      maxAge: 1000 * 60 * 60 * 3,
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-    });
-    res.status(200).json({ ok: true, id: user.id });
-  } else {
-    res.status(400).send("Invalid credentials.");
+  try {
+    const user = await getUserbyEmail(email);
+    if (user && "error" in user) throw new Error(user.error as string);
+    if (user && (await bcryptjs.compare(password, user.password))) {
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.TOKEN_KEY as string,
+        {
+          expiresIn: "2h",
+        }
+      );
+      // set cookie
+      res.cookie("token", token, {
+        maxAge: 1000 * 60 * 60 * 3,
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      res.status(200).json({ ok: true, id: user.id });
+    } else {
+      res.status(400).send({ ok: false, message: "Invalid credentials." });
+    }
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
-export const changePwd = async (req: Request, res: Response) => {
+export const changePwd = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.body.user;
   const data = Object.assign({ ...req.body });
   delete data.user;
@@ -91,12 +110,17 @@ export const changePwd = async (req: Request, res: Response) => {
     data.password = encryptedPassword;
     await updateUser(id, data);
     res.status(200).send({ ok: true, message: "Password updated!" });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
-export const editUser = async (req: Request, res: Response) => {
+export const editUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.body.user;
   const data = Object.assign({ ...req.body });
   delete data.user;
@@ -108,13 +132,18 @@ export const editUser = async (req: Request, res: Response) => {
   try {
     await updateUser(id, data);
     res.status(200).send({ ok: true, message: "Profile updated!" });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
 // could probably be folded into editUser
-export const addPhoto = async (req: Request, res: Response) => {
+export const addPhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id, photo } = req.body;
   const user = await getUserbyID(id);
   if (!user) {
@@ -124,17 +153,27 @@ export const addPhoto = async (req: Request, res: Response) => {
   try {
     await updateUserPhoto(id, photo);
     res.status(200).send({ ok: true, message: "Photo uploaded!" });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
-export const getUserInfo = async (req: Request, res: Response) => {
+export const getUserInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.body.user;
-  const user = await getUserbyID(id);
-  const safeUser = Object.assign({ ...user });
-  delete safeUser.password;
-  res.status(200).send(safeUser);
+  try {
+    const user = await getUserbyID(id);
+    const safeUser = Object.assign({ ...user });
+    delete safeUser.password;
+    res.status(200).send(safeUser);
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
+  }
 };
 
 export const logout = (req: Request, res: Response) => {

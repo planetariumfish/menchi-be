@@ -1,12 +1,16 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { getUserbyID, updateUser, getAllUsers } from "../models/users.prisma";
 import { SafeUser } from "../types/types";
+import { User } from "@prisma/client";
 
-export const adminEditUser = async (req: Request, res: Response) => {
+export const adminEditUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   const data = Object.assign({ ...req.body });
   delete data.user;
-  console.log(data);
   const user = await getUserbyID(id);
   if (!user) {
     res.status(404).send({ ok: false, message: "User not found" });
@@ -17,33 +21,52 @@ export const adminEditUser = async (req: Request, res: Response) => {
     res
       .status(200)
       .send({ ok: true, message: `User info updated for user ${id}` });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
   }
 };
 
-export const adminGetUser = async (req: Request, res: Response) => {
+export const adminGetUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   const data = Object.assign({ ...req.body });
   delete data.user;
-  console.log(data);
-  const user = await getUserbyID(id);
-  if (!user) {
-    res.status(404).send({ ok: false, message: "User not found" });
-    return;
-  }
-  const safeUser = Object.assign({ ...user });
-  delete safeUser.password;
-  res.status(200).send({ ok: true, user: safeUser });
-};
-
-export const sendAllUsers = async (req: Request, res: Response) => {
-  const users = await getAllUsers();
-  const safeUsers: SafeUser[] = [];
-  users.forEach((user) => {
+  try {
+    const user = await getUserbyID(id);
+    if (!user) {
+      res.status(404).send({ ok: false, message: "User not found" });
+      return;
+    }
     const safeUser = Object.assign({ ...user });
     delete safeUser.password;
-    safeUsers.push(safeUser);
-  });
-  res.status(200).send(safeUsers);
+    res.status(200).send({ ok: true, user: safeUser });
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
+  }
+};
+
+export const sendAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const users = await getAllUsers();
+    if ("error" in users) throw new Error(users.error as string);
+    const safeUsers: SafeUser[] = [];
+    users.forEach((user) => {
+      const safeUser = Object.assign({ ...user });
+      delete safeUser.password;
+      safeUsers.push(safeUser);
+    });
+    res.status(200).send({ ok: true, users: safeUsers });
+  } catch (err: any) {
+    err.statusCode = 500;
+    next(err);
+  }
 };

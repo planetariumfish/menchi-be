@@ -16,45 +16,65 @@ export async function addPet(pet: NewPet) {
     );
   if (lowerCasePet.tags)
     lowerCasePet.tags = lowerCasePet.tags.map((e: string) => e.toLowerCase());
-  const newPet = await prisma.pet.create({ data: lowerCasePet });
-  return newPet;
+  try {
+    const newPet = await prisma.pet.create({ data: lowerCasePet });
+    return newPet;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function getPetbyID(id: string) {
-  const user = await prisma.pet.findUnique({
-    where: {
-      id,
-    },
-  });
-  return user;
+  try {
+    const pet = await prisma.pet.findUnique({
+      where: {
+        id,
+      },
+    });
+    return pet;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function getPetsByType(type: AnimalType) {
-  const pets = await prisma.pet.findMany({
-    where: {
-      type,
-    },
-  });
-  return pets;
+  try {
+    const pets = await prisma.pet.findMany({
+      where: {
+        type,
+      },
+    });
+    return pets;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function getUserPets(id: string) {
-  const pets = await prisma.pet.findMany({
-    where: {
-      userId: id,
-    },
-  });
-  return pets;
+  try {
+    const pets = await prisma.pet.findMany({
+      where: {
+        userId: id,
+      },
+    });
+    return pets;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function updatePet(id: string, data: Pet) {
-  const updatePet = await prisma.pet.update({
-    where: {
-      id,
-    },
-    data,
-  });
-  return updatePet;
+  try {
+    const updatedPet = await prisma.pet.update({
+      where: {
+        id,
+      },
+      data,
+    });
+    return updatedPet;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function updatePetStatus(
@@ -62,23 +82,31 @@ export async function updatePetStatus(
   status: Status,
   userId: string | null
 ) {
-  const updatedPet = await prisma.pet.update({
-    where: {
-      id,
-    },
-    data: { status, userId: status === Status.AVAILABLE ? null : userId },
-  });
-  return updatedPet;
+  try {
+    const updatedPet = await prisma.pet.update({
+      where: {
+        id,
+      },
+      data: { status, userId: status === Status.AVAILABLE ? null : userId },
+    });
+    return updatedPet;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 export async function updatePetPhoto(id: string, picture: string) {
-  const updatedPet = await prisma.pet.update({
-    where: {
-      id,
-    },
-    data: { picture },
-  });
-  return updatedPet;
+  try {
+    const updatedPet = await prisma.pet.update({
+      where: {
+        id,
+      },
+      data: { picture },
+    });
+    return updatedPet;
+  } catch (err) {
+    return { error: err };
+  }
 }
 
 // using "any" here because, well, yeah
@@ -113,8 +141,12 @@ export async function getPetsBySearch(queryParams: Record<string, any>) {
     ];
 
   // run the search
-  const pets = await prisma.pet.findMany({
-    where: searchObj,
-  });
-  return pets;
+  try {
+    const pets = await prisma.pet.findMany({
+      where: searchObj,
+    });
+    return pets;
+  } catch (err) {
+    return { error: err };
+  }
 }

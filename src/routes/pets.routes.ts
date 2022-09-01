@@ -20,7 +20,8 @@ import {
 } from "../controllers/petControllers";
 import isAdmin from "../middleware/isAdmin";
 import validate from "../middleware/validate";
-import { newPetSchema } from "../schemas/pet.schema";
+import { newPetSchema, PetSchema } from "../schemas/pet.schema";
+import removeUserFromBody from "../middleware/removeUserFromBody";
 
 const router = express.Router();
 
@@ -52,7 +53,14 @@ router.post(
   addPetPhoto
 );
 
-router.put("/:id", auth, isAdmin, updatePetInfo);
+router.put(
+  "/:id",
+  validate(PetSchema),
+  auth,
+  isAdmin,
+  removeUserFromBody,
+  updatePetInfo
+);
 
 // adopt/foster pet
 router.post("/:id/adopt", auth, adoptOrFosterPet);

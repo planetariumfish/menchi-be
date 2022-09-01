@@ -15,6 +15,6 @@ export const writeStatusChange = async (
       data: { newStatus, petId, userId },
     });
   } catch (err) {
-    console.log(err);
+    return { error: err };
   }
 };
