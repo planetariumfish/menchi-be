@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { CookieOptions, NextFunction, Request, Response } from "express";
 import {
   addUser,
   getUserbyEmail,
@@ -46,8 +46,8 @@ export const userSignup = async (
     res.cookie("token", token, {
       maxAge: 1000 * 60 * 60 * 3,
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production" ? true : false,
     });
     res.status(201).send({ ok: true, id: user.id });
   } catch (err: any) {
@@ -74,12 +74,14 @@ export const userLogin = async (
           expiresIn: "2h",
         }
       );
+
       // set cookie
+
       res.cookie("token", token, {
         maxAge: 1000 * 60 * 60 * 3,
         httpOnly: true,
-        sameSite: "none",
-        secure: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production" ? true : false,
       });
       res.status(200).json({ ok: true, id: user.id });
     } else {

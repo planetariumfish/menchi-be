@@ -86,7 +86,7 @@ export const getSomePets = async (
       const pet = await getPetbyID(id);
       results.push(pet);
     }
-    res.status(200).send(results);
+    res.status(200).send({ ok: true, pets: results });
   } catch (err: any) {
     err.statusCode = 500;
     next(err);
@@ -162,7 +162,10 @@ export const returnAPet = async (
     if (pet && "error" in pet) throw new Error(pet.error as string);
     if (pet && pet.status === "ADOPTED") await userReturningAdoptedPet(userId);
     const updatedPet = await updatePetStatus(id, Status.AVAILABLE, null);
+    if (updatedPet && "error" in updatedPet)
+      throw new Error(updatedPet.error as string);
     const newHist = await writeStatusChange(userId, id, Status.AVAILABLE);
+    if (newHist && "error" in newHist) throw new Error(newHist.error as string);
     res.status(200).send({ ok: true, message: "Pet has been returned." });
   } catch (err: any) {
     err.statusCode = 500;
@@ -179,6 +182,8 @@ export const likeAPet = async (
   const { id: userId } = req.body.user;
   try {
     const bookmark = await addBookmark(userId, id);
+    if (bookmark && "error" in bookmark)
+      throw new Error(bookmark.error as string);
     res.status(200).send({ ok: true, message: "Pet saved to favorites." });
   } catch (err: any) {
     err.statusCode = 500;
@@ -193,8 +198,11 @@ export const unlikeAPet = async (
 ) => {
   const { id } = req.params;
   const { id: userId } = req.body.user;
+  console.log(req.body);
   try {
     const bookmark = await deleteBookmark(userId, id);
+    if (bookmark && "error" in bookmark)
+      throw new Error(bookmark.error as string);
     res.status(200).send({ ok: true, message: "Pet removed from favorites." });
   } catch (err: any) {
     err.statusCode = 500;
