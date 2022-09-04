@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "node ./src/index.ts",
-    "postinstall": "npx tsc",
+    "start": "node ./src/index.js",
+    "postinstall": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./src/index.ts"
   },
