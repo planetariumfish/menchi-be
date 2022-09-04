@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Pet" ALTER COLUMN "weight" SET DATA TYPE DOUBLE PRECISION;
+
+-- AddForeignKey
+ALTER TABLE "Bookmarks" ADD CONSTRAINT "Bookmarks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Bookmarks" ADD CONSTRAINT "Bookmarks_petId_fkey" FOREIGN KEY ("petId") REFERENCES "Pet"("id") ON DELETE CASCADE ON UPDATE CASCADE;

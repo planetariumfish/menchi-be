@@ -1,4 +1,4 @@
-import { CookieOptions, NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   addUser,
   getUserbyEmail,
@@ -20,7 +20,9 @@ export const userSignup = async (
     // find if user already exists
     const oldUser = await getUserbyEmail(email);
     if (oldUser) {
-      return res.status(409).send("User Already Exist. Please Login!");
+      return res
+        .status(409)
+        .send({ ok: false, message: "User Already Exist. Please Login!" });
     }
 
     // encrypt password

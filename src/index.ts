@@ -2,6 +2,7 @@ import express, { ErrorRequestHandler } from "express";
 import cors from "cors";
 import cookieparser from "cookie-parser";
 import "dotenv/config";
+import path from "path";
 import userRoutes from "./routes/users.routes";
 import petRoutes from "./routes/pets.routes";
 import errorHandler from "./middleware/error-handler.middleware";
@@ -18,7 +19,7 @@ const options: cors.CorsOptions = {
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieparser());
-app.use(express.static("dist"));
+app.use(express.static("public"));
 
 // keep this last
 app.use(errorHandler);
@@ -31,8 +32,12 @@ app.get("/", (req, res) => {
   res.send("⚡️ Hello Typescript with Node.js! 🦾");
 });
 
-app.get("*", (req, res) => {
-  res.status(404).send("Nobody here. :(");
+app.get("/*", (req, res, next) => {
+  res.sendFile(path.join(__dirname, "../public", "index.html"), (err) => {
+    if (err) {
+      next(err);
+    }
+  });
 });
 
 app.listen(PORT, () => {
