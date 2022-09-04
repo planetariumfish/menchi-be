@@ -44,7 +44,14 @@ router.get("/:id", async (req, res) => {
 // get some pets by id array
 router.post("/", getSomePets);
 
-router.post("/add", validate(newPetSchema), auth, isAdmin, addNewPet);
+router.post(
+  "/add",
+  validate(newPetSchema),
+  auth,
+  isAdmin,
+  removeUserFromBody,
+  addNewPet
+);
 
 router.post(
   "/upload",

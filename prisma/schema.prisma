@@ -22,8 +22,8 @@ model User {
   returned  DateTime?
   photo     String?
   password  String
-  pets      Pet[]
-  bookmarks Bookmarks[]
+  Pets      Pet[]
+  Bookmarks Bookmarks[]
 }
 
 model Pet {
@@ -42,9 +42,9 @@ model Pet {
   added          DateTime    @default(now())
   returned       DateTime?
   tags           String[]
-  user           User?       @relation(fields: [userId], references: [id])
-  userId         String?     @default("") // this really should be optional though
-  bookmarks      Bookmarks[]
+  User           User?       @relation(fields: [userId], references: [id])
+  userId         String?
+  Bookmarks      Bookmarks[]
 }
 
 model Bookmarks {
