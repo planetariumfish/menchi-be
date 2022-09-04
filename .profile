@@ -1,2 +1,2 @@
-mkdir $HOME/images
-chmod -R 777 $HOME/images
+mkdir $HOME/dist/images
+chmod -R 777 $HOME/dist/images
