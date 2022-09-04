@@ -43,7 +43,7 @@ model Pet {
   returned       DateTime?
   tags           String[]
   user           User?       @relation(fields: [userId], references: [id])
-  userId         String?
+  userId         String?     @default("") // this really should be optional though
   bookmarks      Bookmarks[]
 }
 
