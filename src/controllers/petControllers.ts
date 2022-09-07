@@ -198,7 +198,6 @@ export const unlikeAPet = async (
 ) => {
   const { id } = req.params;
   const { id: userId } = req.body.user;
-  console.log(req.body);
   try {
     const bookmark = await deleteBookmark(userId, id);
     if (bookmark && "error" in bookmark)

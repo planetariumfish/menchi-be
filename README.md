@@ -3,6 +3,8 @@
 Back-end part of the Full-Stack project for [ITC](https://github.com/israeltechchallenge).  
 [Front-End](https://github.com/planetariumfish/menchi-fe) also available.
 
+[See the deploy!](https://fierce-shelf-28591.herokuapp.com/)
+
 ## Technologies
 
 Set up using:
@@ -29,4 +31,4 @@ Done:
 
 To do:
 
-- ...
+- More error handling in middleware
