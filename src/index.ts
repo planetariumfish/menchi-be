@@ -16,10 +16,12 @@ const options: cors.CorsOptions = {
   credentials: true,
 };
 
+const publicpath = path.join(__dirname, "../public/");
+
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieparser());
-app.use(express.static("public"));
+app.use(express.static(publicpath));
 
 // keep this last
 app.use(errorHandler);
